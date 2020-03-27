@@ -1,0 +1,16 @@
+[
+    {
+        "modid": "iffmod",
+        "name": "Iffmod",
+        "description": "A mod that lets you IFF lmao",
+        "version": "${version}",
+        "mcversion": "${mcversion}",
+        "url": "",
+        "updateUrl": "",
+        "authorList": ["Silver"],
+        "credits": "",
+        "logoFile": "",
+        "screenshots": [],
+        "dependencies": []
+    }
+]
