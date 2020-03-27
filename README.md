@@ -1,2 +1,2 @@
 # IFFMod
-A mod that lets you IFF lmao
+I just felt like redoing it, that's all
