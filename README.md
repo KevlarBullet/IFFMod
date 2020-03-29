@@ -1,2 +1,2 @@
 # IFFMod
-I just felt like redoing it, that's all
+##I'M SILVER AND I'M DEVELOPING CHEATS FOR SHOTBOW##
