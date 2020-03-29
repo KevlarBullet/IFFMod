@@ -1,2 +1,3 @@
 # IFFMod
-# I'M SILVER AND I'M DEVELOPING CHEATS FOR SHOTBOW
+A tool for Minecraft...
+That lets you IFF
