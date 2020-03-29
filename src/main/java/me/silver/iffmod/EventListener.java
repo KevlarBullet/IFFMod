@@ -16,7 +16,7 @@ public class EventListener {
 
     private final Iffmod instance = Iffmod.getInstance();
 
-    private final Pattern PATTERN = Pattern.compile("(.[0-9a-f])(\\[[A-Za-z]+])? ?(\\w+)");
+//    private final Pattern PATTERN = Pattern.compile("(.[0-9a-f])(\\[[A-Za-z]+])? ?(\\w+)");
 
     @SubscribeEvent
     public void onNameFormat(PlayerEvent.NameFormat event) {
@@ -39,24 +39,24 @@ public class EventListener {
                 for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
                     String username = npi.getGameProfile().getName();
                     String tabName = tabOverlay.getPlayerName(npi);
-                    String modifiedName;
 
                     if (!instance.originalNames.containsKey(username)) {
                         instance.originalNames.put(username, tabName);
                     }
 
-                    if (!instance.modifiedNames.containsKey(username)) {
-                        Matcher matcher = PATTERN.matcher(tabName);
+                    if (instance.modifiedNames.containsKey(username)) {
+                        npi.setDisplayName(instance.modifiedNames.get(username));
+                    } else {
                         String rank = "";
+                        String[] splitName = tabName.split(" ");
 
-                        if (matcher.find() && matcher.group(2) != null) {
-                            rank = matcher.group(1) + matcher.group(2) + " ";
+                        if (splitName.length > 1) {
+                            rank = splitName[0] + " ";
                         }
 
-                        modifiedName = rank + TextFormatting.DARK_BLUE + username;
-
-                        npi.setDisplayName(new TextComponentString(modifiedName));
-                        instance.modifiedNames.put(username, modifiedName);
+                        TextComponentString nameComponent = new TextComponentString(rank + TextFormatting.DARK_BLUE + username);
+                        npi.setDisplayName(nameComponent);
+                        instance.modifiedNames.put(username, nameComponent);
                     }
                 }
 

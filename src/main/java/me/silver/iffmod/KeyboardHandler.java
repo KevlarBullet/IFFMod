@@ -9,9 +9,11 @@ import org.lwjgl.input.Keyboard;
 public class KeyboardHandler {
 
     public static KeyBinding secureScreenshot = new KeyBinding("key.iff_secure_screenshot", Keyboard.KEY_P, "IFFMod");
+    public static KeyBinding openGui = new KeyBinding("key.iff_open_gui", Keyboard.KEY_O, "IFFMod");
 
     public final KeyBinding[] keys = {
-        secureScreenshot
+            secureScreenshot,
+            openGui,
     };
 
     public void registerKeyBindings() {

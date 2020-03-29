@@ -1,80 +1,62 @@
 package me.silver.iffmod;
 
+import me.silver.iffmod.gui.GuiNameEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.Mod;
-
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Mod(
-        modid = Iffmod.MOD_ID,
-        name = Iffmod.MOD_NAME,
-        version = Iffmod.VERSION
-)
+@Mod(modid = Iffmod.MODID, name = Iffmod.NAME, version = Iffmod.VERSION)
 public class Iffmod {
+    public static final String MODID = "iffmod";
+    public static final String NAME = "IFFMod";
+    public static final String VERSION = "1.0";
 
-    public static final String MOD_ID = "iffmod";
-    public static final String MOD_NAME = "Iffmod";
-    public static final String VERSION = "2020.1-1.3.4";
-
-    public static final Logger LOGGER = LogManager.getLogger(Iffmod.MOD_ID);
+    private static Logger LOGGER;
 
     private boolean doNameReset = false;
-    private KeyboardHandler keyboardHandler;
 
     public Map<String, String> originalNames = new HashMap<>();
-    public Map<String, String> modifiedNames = new HashMap<>();
+    public Map<String, TextComponentString> modifiedNames = new HashMap<>();
 
-    /**
-     * This is the instance of your mod as created by Forge. It will never be null.
-     */
-    @Mod.Instance(MOD_ID)
-    private static Iffmod INSTANCE;
+    public Minecraft mc;
 
     public static Iffmod getInstance() {
         return INSTANCE;
     }
 
     /**
-     * This is the first initialization event. Register tile entities here.
-     * The registry events below will have fired prior to entry to this method.
+     * This is the instance of your mod as created by Forge. It will never be null.
      */
-    @Mod.EventHandler
-    public void preinit(FMLPreInitializationEvent event) {
-        this.keyboardHandler = new KeyboardHandler();
-        this.keyboardHandler.registerKeyBindings();
+    @Mod.Instance(MODID)
+    private static Iffmod INSTANCE;
 
-        MinecraftForge.EVENT_BUS.register(new EventListener());
-        MinecraftForge.EVENT_BUS.register(this.keyboardHandler);
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        LOGGER = event.getModLog();
     }
 
-    /**
-     * This is the second initialization event. Register custom recipes
-     */
-    @Mod.EventHandler
+    @EventHandler
     public void init(FMLInitializationEvent event) {
-        INSTANCE = this;
-    }
+        // some example code
+        KeyboardHandler handler = new KeyboardHandler();
+        handler.registerKeyBindings();
 
-    /**
-     * This is the final initialization event. Register actions from other mods here
-     */
-    @Mod.EventHandler
-    public void postinit(FMLPostInitializationEvent event) {
-
+//        MinecraftForge.EVENT_BUS.register(new EventListener());
+        MinecraftForge.EVENT_BUS.register(handler);
     }
 
     public void resetPlayerNames() {
@@ -95,7 +77,19 @@ public class Iffmod {
     }
 
     public void handleKeyInput(KeyBinding key) {
+        // Check if the player is in a game and does not already have a GUI open
+        if (!(Minecraft.getMinecraft().world == null) && Minecraft.getMinecraft().currentScreen == null) {
+            if (key == KeyboardHandler.openGui) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiNameEditor());
+            } else if (key == KeyboardHandler.secureScreenshot) {
+                this.resetPlayerNames();
 
+                // Add 1 tick of delay somehow
+
+                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
+                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
+            }
+        }
     }
 
     public boolean shouldResetNames() {
