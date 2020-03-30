@@ -1,2 +1,3 @@
 # IFFMod
-I just felt like redoing it, that's all
+A tool for Minecraft...
+That lets you IFF
