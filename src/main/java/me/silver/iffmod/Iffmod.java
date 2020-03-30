@@ -51,6 +51,8 @@ public class Iffmod {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        this.mc = Minecraft.getMinecraft();
+
         // some example code
         KeyboardHandler handler = new KeyboardHandler();
         handler.registerKeyBindings();
