@@ -26,6 +26,8 @@ public class GuiNameEditor extends GuiScreen {
     private GuiTextField textBoxPlayerGroup;
     private GuiTextField textBoxGroupEditor;
 
+    private GuiButtonList<String> guiButtonList;
+
     private final GuiTextField[] textBoxes = {textBoxPlayerSearch, textBoxPlayerGroup, textBoxGroupEditor};
 
     // The currently active text box that the player clicked on
@@ -53,6 +55,8 @@ public class GuiNameEditor extends GuiScreen {
         textBoxPlayerGroup.drawTextBox();
         textBoxGroupEditor.drawTextBox();
 
+        guiButtonList.drawButton(mc, mouseX, mouseY, 0);
+
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
@@ -68,6 +72,21 @@ public class GuiNameEditor extends GuiScreen {
         textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
         textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, SMALL_BOX_WIDTH, LARGE_BUTTON_SIZE);
 
+        guiButtonList = new GuiScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
+
+        guiButtonList.addItem("This");
+        guiButtonList.addItem("Is");
+        guiButtonList.addItem("A");
+        guiButtonList.addItem("Test");
+        guiButtonList.addItem("Thingy");
+        guiButtonList.addItem("Please");
+        guiButtonList.addItem("Ignore");
+        guiButtonList.addItem("1");
+        guiButtonList.addItem("2");
+        guiButtonList.addItem("3");
+        guiButtonList.addItem("4");
+        guiButtonList.addItem("5");
+
         super.initGui();
     }
 
@@ -75,10 +94,7 @@ public class GuiNameEditor extends GuiScreen {
     protected void actionPerformed(GuiButton button) throws IOException {
         switch (button.id) {
             case CLOSE_BUTTON:
-
-                break;
-            default:
-//                idk;
+                Minecraft.getMinecraft().displayGuiScreen(null);
                 break;
         }
 
@@ -89,6 +105,26 @@ public class GuiNameEditor extends GuiScreen {
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         if (activeTextBox != null) {
             activeTextBox.textboxKeyTyped(typedChar, keyCode);
+
+            // Key code for enter?
+            if (keyCode == 28) {
+                activeTextBox.setFocused(false);
+
+                switch (activeTextBox.getId()) {
+                    case -1:
+
+                        break;
+                    case -2:
+
+                        break;
+
+                    case -3:
+
+                        break;
+                }
+
+                activeTextBox = null;
+            }
         }
 
         super.keyTyped(typedChar, keyCode);
@@ -107,6 +143,15 @@ public class GuiNameEditor extends GuiScreen {
             activeTextBox = null;
         }
 
+        guiButtonList.mousePressed(mc, mouseX, mouseY);
+
         super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        guiButtonList.mouseReleased(mouseX, mouseY);
+
+        super.mouseReleased(mouseX, mouseY, state);
     }
 }
