@@ -1,11 +1,13 @@
 package me.silver.iffmod.gui;
 
+import me.silver.iffmod.Iffmod;
+import me.silver.iffmod.util.GuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiColorButtonGrid extends GuiButton {
+public class GuiButtonColorGrid extends GuiButton {
 
     private final ResourceLocation location;
 
@@ -19,7 +21,7 @@ public class GuiColorButtonGrid extends GuiButton {
 
     private short activeIndex = -1;
 
-    public GuiColorButtonGrid(ResourceLocation location, int buttonId, int x, int y, int rowCount, int colCount) {
+    public GuiButtonColorGrid(ResourceLocation location, int buttonId, int x, int y, int rowCount, int colCount) {
         super(buttonId, x, y, 8 * colCount + 2 * (colCount - 1), 8 * rowCount + 2 * (rowCount - 1), "");
 
         this.location = location;
@@ -35,7 +37,13 @@ public class GuiColorButtonGrid extends GuiButton {
 
         for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < colCount; j++) {
-                drawTexturedModalRect(x + (j * 10), y + (i * 10), textureX, primaryY, 8, 8);
+                int posX = x + (j * 10);
+                int posY = y + (i * 10);
+
+                drawTexturedModalRect(posX, posY, textureX, primaryY, 8, 8);
+                drawRect(posX + 2, posY + 2, posX + 6, posY + 6, GuiColor.getByColorIndex(getColorIndex(j, i)).getRgbColor());
+
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
 
@@ -54,8 +62,8 @@ public class GuiColorButtonGrid extends GuiButton {
         }
 
         if (activeIndex > -1) {
-            int row = activeIndex / rowCount;
-            int column = activeIndex - (row * 4);
+            int column = activeIndex % colCount;
+            int row = (activeIndex - column) / colCount;
 
             drawTexturedModalRect(x + (column * 10), y + (row * 10), textureX, activeY, 8, 8);
         }
@@ -82,10 +90,14 @@ public class GuiColorButtonGrid extends GuiButton {
     }
 
     private short getColorIndex(int buttonX, int buttonY) {
-        return (buttonX < colCount && buttonY < rowCount) ? (short) ((rowCount * buttonY) + buttonX) : -1;
+        return (buttonX < colCount && buttonY < rowCount) ? (short) ((colCount * buttonY) + buttonX) : -1;
     }
 
     public boolean isHovered(int mouseX, int mouseY) {
         return (mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height);
+    }
+
+    public GuiColor getActiveColor() {
+        return GuiColor.getByColorIndex(activeIndex);
     }
 }

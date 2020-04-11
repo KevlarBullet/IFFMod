@@ -27,7 +27,7 @@ public class GuiNameEditor extends GuiScreen {
     private GuiTextField textBoxGroupEditor;
 
     private GuiButtonList<String> guiButtonList;
-    private GuiColorButtonGrid colorGrid;
+    private GuiButtonColorGrid colorGrid;
 
     private final GuiTextField[] textBoxes = {textBoxPlayerSearch, textBoxPlayerGroup, textBoxGroupEditor};
 
@@ -49,8 +49,8 @@ public class GuiNameEditor extends GuiScreen {
         textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
         textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, SMALL_BOX_WIDTH, LARGE_BUTTON_SIZE);
 
-        guiButtonList = new GuiScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
-        colorGrid = new GuiColorButtonGrid(background, -69, GUI_CENTER_X + 184, GUI_CENTER_Y, 4, 4);
+        guiButtonList = new GuiButtonScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
+        colorGrid = new GuiButtonColorGrid(background, -69, GUI_CENTER_X + 184, GUI_CENTER_Y, 1, 16);
 
         guiButtonList.addItem("This");
         guiButtonList.addItem("Is");

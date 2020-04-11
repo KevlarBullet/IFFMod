@@ -7,7 +7,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiScrollBox<E> extends GuiButtonList<E> {
+public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
 
     private final List<E> fullItemList = new ArrayList<>();
 
@@ -20,7 +20,7 @@ public class GuiScrollBox<E> extends GuiButtonList<E> {
     private final ScrollButton buttonDownArrow;
     private final ScrollButton scrollBar;
 
-    public GuiScrollBox(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {
+    public GuiButtonScrollBox(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {
         super(resourceLocation, buttonId, x, y, buttonCount);
         // Add 6 to the width to accommodate for the scrollbar
         this.setWidth(width + 6);
@@ -234,7 +234,7 @@ public class GuiScrollBox<E> extends GuiButtonList<E> {
         private final int disabledX;
         private final int textureY;
 
-        ResourceLocation location = GuiScrollBox.this.location;
+        ResourceLocation location = GuiButtonScrollBox.this.location;
 
         public ScrollButton(int x, int y, int width, int height, int primaryX, int activeX, int hoveredX, int disabledX, int textureY) {
             this.x = x;
