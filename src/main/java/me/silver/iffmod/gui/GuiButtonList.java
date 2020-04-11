@@ -27,7 +27,7 @@ public class GuiButtonList<E> extends GuiButton {
     public static final int REMOVE_BUTTON_OFFSET_X = 101;
     public static final int REMOVE_BUTTON_OFFSET_Y = 4;
 
-    private int activeItem = -1;
+    protected int activeItem = -1;
 
     // Maybe not the best practice to have the ResourceLocation passed in through the constructor if it should always be the same, but whatever
     public GuiButtonList(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {

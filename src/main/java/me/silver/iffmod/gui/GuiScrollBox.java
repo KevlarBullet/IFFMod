@@ -21,8 +21,8 @@ public class GuiScrollBox<E> extends GuiButtonList<E> {
     private final ScrollButton scrollBar;
 
     public GuiScrollBox(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {
-        // Add 6 to the width to accommodate for the scrollbar
         super(resourceLocation, buttonId, x, y, buttonCount);
+        // Add 6 to the width to accommodate for the scrollbar
         this.setWidth(width + 6);
 
         this.buttonUpArrow = new ScrollButton(x + width - 6, y, 6, 6, 177, 185, 193, 201, 57);
@@ -98,6 +98,7 @@ public class GuiScrollBox<E> extends GuiButtonList<E> {
         this.sbActiveButton = hoveredButton;
 
         if (hoveredButton != null) {
+            this.activeItem = -1;
             hoveredButton.setState(1);
 
             if (hoveredButton == scrollBar) {

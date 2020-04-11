@@ -27,6 +27,7 @@ public class GuiNameEditor extends GuiScreen {
     private GuiTextField textBoxGroupEditor;
 
     private GuiButtonList<String> guiButtonList;
+    private GuiColorButtonGrid colorGrid;
 
     private final GuiTextField[] textBoxes = {textBoxPlayerSearch, textBoxPlayerGroup, textBoxGroupEditor};
 
@@ -35,6 +36,37 @@ public class GuiNameEditor extends GuiScreen {
 
     private final int CLOSE_BUTTON = 0;
     private GuiButton buttonCloseGui;
+
+    @Override
+    public void initGui() {
+        buttonList.clear();
+        buttonList.add(buttonCloseGui = new GuiButton(CLOSE_BUTTON, GUI_CENTER_X, GUI_CENTER_Y, 12, 12, ""));
+
+        GUI_CENTER_X = width / 2 - 88;
+        GUI_CENTER_Y = height / 2 - 111;
+
+        textBoxPlayerSearch = new GuiTextField(-1, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 18, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
+        textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
+        textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, SMALL_BOX_WIDTH, LARGE_BUTTON_SIZE);
+
+        guiButtonList = new GuiScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
+        colorGrid = new GuiColorButtonGrid(background, -69, GUI_CENTER_X + 184, GUI_CENTER_Y, 4, 4);
+
+        guiButtonList.addItem("This");
+        guiButtonList.addItem("Is");
+        guiButtonList.addItem("A");
+        guiButtonList.addItem("Test");
+        guiButtonList.addItem("Thingy");
+        guiButtonList.addItem("Please");
+        guiButtonList.addItem("Ignore");
+        guiButtonList.addItem("1");
+        guiButtonList.addItem("2");
+        guiButtonList.addItem("3");
+        guiButtonList.addItem("4");
+        guiButtonList.addItem("5");
+
+        super.initGui();
+    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -56,38 +88,9 @@ public class GuiNameEditor extends GuiScreen {
         textBoxGroupEditor.drawTextBox();
 
         guiButtonList.drawButton(mc, mouseX, mouseY, 0);
+        colorGrid.drawButton(mc, mouseX, mouseY, 0);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    public void initGui() {
-        buttonList.clear();
-        buttonList.add(buttonCloseGui = new GuiButton(CLOSE_BUTTON, GUI_CENTER_X, GUI_CENTER_Y, 12, 12, ""));
-
-        GUI_CENTER_X = width / 2 - 88;
-        GUI_CENTER_Y = height / 2 - 111;
-
-        textBoxPlayerSearch = new GuiTextField(-1, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 18, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
-        textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
-        textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, SMALL_BOX_WIDTH, LARGE_BUTTON_SIZE);
-
-        guiButtonList = new GuiScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
-
-        guiButtonList.addItem("This");
-        guiButtonList.addItem("Is");
-        guiButtonList.addItem("A");
-        guiButtonList.addItem("Test");
-        guiButtonList.addItem("Thingy");
-        guiButtonList.addItem("Please");
-        guiButtonList.addItem("Ignore");
-        guiButtonList.addItem("1");
-        guiButtonList.addItem("2");
-        guiButtonList.addItem("3");
-        guiButtonList.addItem("4");
-        guiButtonList.addItem("5");
-
-        super.initGui();
     }
 
     @Override
@@ -144,6 +147,7 @@ public class GuiNameEditor extends GuiScreen {
         }
 
         guiButtonList.mousePressed(mc, mouseX, mouseY);
+        colorGrid.mousePressed(mc, mouseX, mouseY);
 
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
