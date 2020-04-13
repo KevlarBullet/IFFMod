@@ -1,20 +1,28 @@
 package me.silver.iffmod;
 
+import me.silver.iffmod.config.GroupConfig;
+import me.silver.iffmod.config.PlayerConfig;
+import me.silver.iffmod.config.json.JSONConfig;
+import me.silver.iffmod.config.json.JSONHandler;
 import me.silver.iffmod.gui.GuiNameEditor;
+import me.silver.iffmod.util.EventListener;
+import me.silver.iffmod.util.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +41,8 @@ public class Iffmod {
     public Map<String, TextComponentString> modifiedNames = new HashMap<>();
 
     public Minecraft mc;
+    public JSONConfig playerConfig;
+    public JSONConfig groupConfig;
 
     public static Iffmod getInstance() {
         return INSTANCE;
@@ -57,11 +67,22 @@ public class Iffmod {
         KeyboardHandler handler = new KeyboardHandler();
         handler.registerKeyBindings();
 
-//        MinecraftForge.EVENT_BUS.register(new EventListener());
+        MinecraftForge.EVENT_BUS.register(new EventListener());
         MinecraftForge.EVENT_BUS.register(handler);
     }
 
-    public void resetPlayerNames() {
+    // TODO: Make this server-specific instead of universal
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        playerConfig = new PlayerConfig(getDataPath(), "players.json");
+        groupConfig = new GroupConfig(getDataPath(), "groups.json");
+
+        playerConfig.loadConfig();
+        groupConfig.loadConfig();
+
+    }
+
+    public void togglePlayerColors(boolean shouldDisplayColors) {
         if (Minecraft.getMinecraft().getConnection() != null) {
             GuiPlayerTabOverlay tabOverlay = Minecraft.getMinecraft().ingameGUI.getTabList();
 
@@ -70,11 +91,11 @@ public class Iffmod {
                 npi.setDisplayName(new TextComponentString(TextFormatting.DARK_BLUE + npi.getGameProfile().getName()));
             }
 
-            this.doNameReset = true;
+            this.doNameReset = !shouldDisplayColors;
+
             for (EntityPlayer player : Minecraft.getMinecraft().world.playerEntities) {
                 player.refreshDisplayName();
             }
-            this.doNameReset = false;
         }
     }
 
@@ -84,18 +105,32 @@ public class Iffmod {
             if (key == KeyboardHandler.openGui) {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiNameEditor());
             } else if (key == KeyboardHandler.secureScreenshot) {
-                this.resetPlayerNames();
+                JSONArray array = new JSONArray();
 
-                // Add 1 tick of delay somehow
+                for (EntityPlayer player : mc.world.playerEntities) {
+                    JSONObject playerObject = new JSONObject();
+                    playerObject.put("playerName", player.getName());
 
-                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
-                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
+                    array.add(playerObject);
+                }
+
+                JSONHandler.writeFile(getDataPath(), "test.json", array);
+//                this.resetPlayerNames();
+//
+//                // Add 1 tick of delay somehow
+//
+//                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
+//                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
             }
         }
     }
 
     public boolean shouldResetNames() {
         return this.doNameReset;
+    }
+
+    public static String getDataPath() {
+        return "mods/" + MODID + "/";
     }
 
 }

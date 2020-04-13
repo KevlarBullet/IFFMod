@@ -1,5 +1,6 @@
-package me.silver.iffmod;
+package me.silver.iffmod.util;
 
+import me.silver.iffmod.Iffmod;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

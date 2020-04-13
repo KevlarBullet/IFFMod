@@ -1,5 +1,6 @@
-package me.silver.iffmod;
+package me.silver.iffmod.util;
 
+import me.silver.iffmod.Iffmod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
