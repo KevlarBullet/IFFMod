@@ -20,8 +20,8 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
     private final ScrollButton buttonDownArrow;
     private final ScrollButton scrollBar;
 
-    public GuiButtonScrollBox(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {
-        super(resourceLocation, buttonId, x, y, buttonCount);
+    public GuiButtonScrollBox(GuiNameEditor parent, int buttonId, int x, int y, int buttonCount) {
+        super(parent, buttonId, x, y, buttonCount);
         // Add 6 to the width to accommodate for the scrollbar
         this.setWidth(width + 6);
 
@@ -32,6 +32,7 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
 
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        if (!this.enabled) return;
         mouseDragged(mc, mouseX, mouseY);
 
         setDisplayedItems(sbValue);

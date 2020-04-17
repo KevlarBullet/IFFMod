@@ -1,19 +1,18 @@
 package me.silver.iffmod;
 
-import me.silver.iffmod.config.GroupConfig;
 import me.silver.iffmod.config.json.JSONSerializable;
 import org.json.simple.JSONObject;
 
-public class PlayerGroup implements JSONSerializable {
+public class IffGroup implements JSONSerializable {
 
     private final String groupName;
     private int defaultColorIndex;
 
-    public PlayerGroup(String groupName) {
+    public IffGroup(String groupName) {
         this(groupName, -1);
     }
 
-    public PlayerGroup(String groupName, int defaultColorIndex) {
+    public IffGroup(String groupName, int defaultColorIndex) {
         this.groupName = groupName;
         this.defaultColorIndex = defaultColorIndex;
     }
@@ -29,11 +28,11 @@ public class PlayerGroup implements JSONSerializable {
         return groupObject;
     }
 
-    public static PlayerGroup deserialize(JSONObject object) {
+    public static IffGroup deserialize(JSONObject object) {
         String groupName = (String) object.get("group_name");
         int colorIndex = (int) ((long) object.get("color_index"));
 
-        return new PlayerGroup(groupName, colorIndex);
+        return new IffGroup(groupName, colorIndex);
     }
 
     public String getGroupName() {
@@ -48,5 +47,10 @@ public class PlayerGroup implements JSONSerializable {
         if (index >= 0 && index <= 15) {
             this.defaultColorIndex = index;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.groupName;
     }
 }

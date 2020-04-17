@@ -82,11 +82,13 @@ public class GuiButtonColorGrid extends GuiButton {
 
                 if (index > -1) {
                     activeIndex = index;
+
+                    return true;
                 }
             }
         }
 
-        return super.mousePressed(mc, mouseX, mouseY);
+        return false;
     }
 
     private short getColorIndex(int buttonX, int buttonY) {

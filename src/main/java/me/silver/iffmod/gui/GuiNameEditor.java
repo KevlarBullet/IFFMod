@@ -1,69 +1,86 @@
 package me.silver.iffmod.gui;
 
+import me.silver.iffmod.IffGroup;
+import me.silver.iffmod.IffPlayer;
 import me.silver.iffmod.Iffmod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+// Each button is a healthy mix of good and lazy programming practices
 public class GuiNameEditor extends GuiScreen {
 
-    private final ResourceLocation background = new ResourceLocation(Iffmod.MODID,"textures/background.png");
+    public final ResourceLocation background = new ResourceLocation(Iffmod.MODID,"textures/background.png");
 
     private int GUI_CENTER_X;
     private int GUI_CENTER_Y;
 
-    private final int SMALL_BUTTON_SIZE = 8;
-    private final int MEDIUM_BUTTON_SIZE = 12;
-    private final int LARGE_BUTTON_SIZE = 18;
-    private final int SMALL_BOX_WIDTH = 116;
-    private final int LARGE_BOX_WIDTH = 138;
-    private final int SCROLL_BOX_ITEM_HEIGHT = 16;
-    private final int SCROLL_BOX_HEIGHT = 64;
-
-    private GuiTextField textBoxPlayerSearch;
-    private GuiTextField textBoxPlayerGroup;
-    private GuiTextField textBoxGroupEditor;
-
-    private GuiButtonList<String> guiButtonList;
-    private GuiButtonColorGrid colorGrid;
-
-    private final GuiTextField[] textBoxes = {textBoxPlayerSearch, textBoxPlayerGroup, textBoxGroupEditor};
-
-    // The currently active text box that the player clicked on
+    private final List<GuiTextField> textBoxes = new ArrayList<>();
     private GuiTextField activeTextBox;
 
-    private final int CLOSE_BUTTON = 0;
-    private GuiButton buttonCloseGui;
+    private GuiTextField textBoxPlayerSearch; // 138 x 18 (8, 18)
+    private GuiTextField textBoxPlayerGroup; // 116 x 18 (8, 132)
+    private GuiTextField textBoxGroupEditor; // 116 x 18 (8, 172)
+
+    private GuiButton closeButton; // 12 x 12 (157, 4)
+    private GuiButton playerSearchConfirm; // 18 x 18 (151, 18)
+    private GuiButton playerListAccept; // 12 x 12 (133, 95)
+    private GuiButton playerListCancel; // 12 x 12 (153, 95)
+    private GuiButton groupEditorCancel; // 12 x 12 (153, 175)
+
+    private GuiButton groupEditorA; // 12 x 12 (133, 175)
+    private GuiButton groupEditorAdd;
+    private GuiButton groupEditorAccept;
+
+    private GuiButton playerList; // 4 (8, 25)
+    private GuiButton playerGroupList; // 4 (8, 144)
+    private GuiButton groupList; // 4 (8, 183)
+
+    private GuiButton playerColor; // 4 x 4 (130, 52)
+    private GuiButton groupColor; // 16 x 1 (9, 205)
+
+    private GuiButton playerSearchClear; // 7 x 7 (135, 23)
+    private GuiButton playerGroupDropdown; // 7 x 7 (113, 137)
+    private GuiButton groupEditorDropdown; // 7 x 7 (113, 177)
 
     @Override
     public void initGui() {
         buttonList.clear();
-        buttonList.add(buttonCloseGui = new GuiButton(CLOSE_BUTTON, GUI_CENTER_X, GUI_CENTER_Y, 12, 12, ""));
 
         GUI_CENTER_X = width / 2 - 88;
         GUI_CENTER_Y = height / 2 - 111;
 
-        textBoxPlayerSearch = new GuiTextField(-1, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 18, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
-        textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, LARGE_BOX_WIDTH, LARGE_BUTTON_SIZE);
-        textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, SMALL_BOX_WIDTH, LARGE_BUTTON_SIZE);
+        textBoxes.add(textBoxPlayerSearch = new GuiTextField(-1, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 18, 138, 18));
+        textBoxes.add(textBoxPlayerGroup = new GuiTextField(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, 116, 18));
+        textBoxes.add(textBoxGroupEditor = new GuiTextField(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, 116, 18));
 
-        guiButtonList = new GuiButtonScrollBox<>(background, 72, GUI_CENTER_X - 120, GUI_CENTER_Y, 6);
-        colorGrid = new GuiButtonColorGrid(background, -69, GUI_CENTER_X + 184, GUI_CENTER_Y, 1, 16);
+        buttonList.add(closeButton = new GuiButtonImageLayered(background, 0, GUI_CENTER_X + 157, GUI_CENTER_Y + 4, 12, 12, 184, 18, 244, 18));
+        buttonList.add(playerSearchConfirm = new GuiButtonImageLayered(background, 1, GUI_CENTER_X + 151, GUI_CENTER_Y + 18, 18, 18, 184, 0, 238, 30));
+        buttonList.add(playerListAccept = new GuiButtonImageLayered(background, 2, GUI_CENTER_X + 133, GUI_CENTER_Y + 95, 12, 12, 184, 18, 232, 18));
+        buttonList.add(playerListCancel = new GuiButtonImageLayered(background, 3, GUI_CENTER_X + 153, GUI_CENTER_Y + 95, 12, 12, 184, 18, 244, 18));
+        buttonList.add(groupEditorCancel = new GuiButtonImageLayered(background, 6, GUI_CENTER_X + 153, GUI_CENTER_Y + 175, 12, 12, 184, 18, 244, 18));
 
-        guiButtonList.addItem("This");
-        guiButtonList.addItem("Is");
-        guiButtonList.addItem("A");
-        guiButtonList.addItem("Test");
-        guiButtonList.addItem("Thingy");
-        guiButtonList.addItem("Please");
-        guiButtonList.addItem("Ignore");
-        guiButtonList.addItem("1");
-        guiButtonList.addItem("2");
-        guiButtonList.addItem("3");
-        guiButtonList.addItem("4");
-        guiButtonList.addItem("5");
+        // These two are handled slightly differently than the others (Only one drawn at a time)
+        groupEditorAdd = new GuiButtonImageLayered(background, 4, GUI_CENTER_X + 133, GUI_CENTER_Y + 175, 12, 12, 184, 18, 184, 30);
+        groupEditorAccept = new GuiButtonImageLayered(background, 5, GUI_CENTER_X + 133, GUI_CENTER_Y + 175, 12, 12, 184, 18, 232, 18);
+        buttonList.add(groupEditorA = groupEditorAdd);
+
+        buttonList.add(playerList = new GuiButtonScrollBox<IffPlayer>(this, 100,  GUI_CENTER_X + 8, GUI_CENTER_Y + 52, 4));
+        buttonList.add(playerGroupList = new GuiButtonScrollBox<IffGroup>(this, 101, GUI_CENTER_X + 8, GUI_CENTER_Y + 144, 4));
+        buttonList.add(groupList = new GuiButtonScrollBox<IffGroup>(this, 102, GUI_CENTER_X + 8, GUI_CENTER_Y + 183, 4));
+        playerGroupList.enabled = false;
+        groupList.enabled = false;
+
+        buttonList.add(playerColor = new GuiButtonColorGrid(background, 1000, GUI_CENTER_X + 130, GUI_CENTER_Y + 52, 4, 4));
+        buttonList.add(groupColor = new GuiButtonColorGrid(background, 1001, GUI_CENTER_X + 9, GUI_CENTER_Y + 205, 1, 16));
+
+        buttonList.add(playerSearchClear = new GuiButtonOther(background, 10000, GUI_CENTER_X + 135, GUI_CENTER_Y + 23, 7, 7, 176, 24));
+        buttonList.add(playerGroupDropdown = new GuiButtonOther(background, 10001, GUI_CENTER_X + 113, GUI_CENTER_Y + 137, 7, 7, 176, 151));
+        buttonList.add(groupEditorDropdown = new GuiButtonOther(background, 10002, GUI_CENTER_X + 113, GUI_CENTER_Y + 177, 7, 7, 176, 151));
 
         super.initGui();
     }
@@ -81,81 +98,69 @@ public class GuiNameEditor extends GuiScreen {
         mc.fontRenderer.drawString("Player Group:", GUI_CENTER_X + 8, GUI_CENTER_Y + 121, 8421504);
         mc.fontRenderer.drawString("Group Editor:", GUI_CENTER_X + 8, GUI_CENTER_Y + 161, 8421504);
         mc.fontRenderer.drawString("Group Color:", GUI_CENTER_X + 8, GUI_CENTER_Y + 195, 8421504);
-//        drawString(mc.standardGalacticFontRenderer, "Search for a Player:", GUI_CENTER_X + 8, GUI_CENTER_Y + 5, 8421504);
 
-        textBoxPlayerSearch.drawTextBox();
-        textBoxPlayerGroup.drawTextBox();
-        textBoxGroupEditor.drawTextBox();
-
-        guiButtonList.drawButton(mc, mouseX, mouseY, 0);
-        colorGrid.drawButton(mc, mouseX, mouseY, 0);
+        for (GuiTextField textField : this.textBoxes) {
+            textField.drawTextBox();
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
-        switch (button.id) {
-            case CLOSE_BUTTON:
-                Minecraft.getMinecraft().displayGuiScreen(null);
-                break;
-        }
 
         super.actionPerformed(button);
     }
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        if (activeTextBox != null) {
-            activeTextBox.textboxKeyTyped(typedChar, keyCode);
-
-            // Key code for enter?
-            if (keyCode == 28) {
-                activeTextBox.setFocused(false);
-
-                switch (activeTextBox.getId()) {
-                    case -1:
-
-                        break;
-                    case -2:
-
-                        break;
-
-                    case -3:
-
-                        break;
-                }
-
-                activeTextBox = null;
-            }
-        }
 
         super.keyTyped(typedChar, keyCode);
     }
 
+    // Copy default mouse behavior but break if a clicked button returns true
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        // Activate text box if clicked (I'm sure there's a better way to do this, but I can't think of it)
-        if (textBoxPlayerSearch.mouseClicked(mouseX, mouseY, mouseButton)) {
-            activeTextBox = textBoxPlayerSearch;
-        } else if (textBoxPlayerGroup.mouseClicked(mouseX, mouseY, mouseButton)) {
-            activeTextBox = textBoxPlayerGroup;
-        } else if (textBoxGroupEditor.mouseClicked(mouseX, mouseY, mouseButton)) {
-            activeTextBox = textBoxGroupEditor;
-        } else {
+        if (mouseButton == 0) {
+            if (activeTextBox != null) activeTextBox.setFocused(false);
+
+            for (GuiButton button : this.buttonList) {
+                if (button.enabled && button.mousePressed(mc, mouseX, mouseY)) {
+                    net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Pre event = new net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Pre(this, button, this.buttonList);
+                    if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) break;
+                    // In case the event is modified to change the button, I guess
+                    GuiButton guiButton = event.getButton();
+
+                    this.selectedButton = guiButton;
+                    guiButton.playPressSound(mc.getSoundHandler());
+                    this.actionPerformed(guiButton);
+
+                    if (this.equals(mc.currentScreen)) {
+                        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), this.buttonList));
+                    }
+
+                    activeTextBox = null;
+                    return;
+                }
+            }
+
+            for (GuiTextField textField : this.textBoxes) {
+                if (textField.mouseClicked(mouseX, mouseY, mouseButton)) {
+                    activeTextBox = textField;
+                    return;
+                }
+            }
+
             activeTextBox = null;
         }
 
-        guiButtonList.mousePressed(mc, mouseX, mouseY);
-        colorGrid.mousePressed(mc, mouseX, mouseY);
-
-        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state) {
-        guiButtonList.mouseReleased(mouseX, mouseY);
+    public void handleItemRemoved(Object o){
+        if (o instanceof IffPlayer) {
+            Iffmod.LOGGER.info("This worked");
+        }
 
-        super.mouseReleased(mouseX, mouseY, state);
     }
+
 }

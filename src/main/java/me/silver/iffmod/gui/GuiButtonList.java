@@ -12,6 +12,7 @@ public class GuiButtonList<E> extends GuiButton {
 
     protected final List<E> itemList;
 
+    private final GuiNameEditor parent;
     protected final ResourceLocation location;
     protected final int buttonCount;
 
@@ -30,10 +31,11 @@ public class GuiButtonList<E> extends GuiButton {
     protected int activeItem = -1;
 
     // Maybe not the best practice to have the ResourceLocation passed in through the constructor if it should always be the same, but whatever
-    public GuiButtonList(ResourceLocation resourceLocation, int buttonId, int x, int y, int buttonCount) {
+    public GuiButtonList(GuiNameEditor parent, int buttonId, int x, int y, int buttonCount) {
         super(buttonId, x, y, 110, buttonCount << 4, "");
 
-        this.location = resourceLocation;
+        this.parent = parent;
+        this.location = parent.background;
         this.buttonCount = buttonCount;
         this.itemList = new ArrayList<>(buttonCount);
     }
@@ -41,6 +43,7 @@ public class GuiButtonList<E> extends GuiButton {
     // TODO: Figure out why texture isn't drawing correctly
     @Override
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        if (!this.enabled) return;
         mc.renderEngine.bindTexture(location);
 
         // Have to reset colors after every draw action
@@ -123,12 +126,15 @@ public class GuiButtonList<E> extends GuiButton {
             } else {
                 activeItem = -1;
             }
+
+            return true;
         }
 
-        return super.mousePressed(mc, mouseX, mouseY);
+        return false;
     }
 
     protected E removeItem(int itemIndex) {
+        parent.handleItemRemoved(itemList.get(itemIndex));
         return itemList.remove(itemIndex);
     }
 

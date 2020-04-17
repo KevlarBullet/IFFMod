@@ -1,13 +1,10 @@
 package me.silver.iffmod.config;
 
-import me.silver.iffmod.PlayerGroup;
+import me.silver.iffmod.IffGroup;
 import me.silver.iffmod.config.json.JSONConfig;
 import me.silver.iffmod.config.json.JSONHandler;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class GroupConfig extends JSONConfig {
 
@@ -25,7 +22,7 @@ public class GroupConfig extends JSONConfig {
 
                 for (Object key : configItem.keySet()) {
                     String s = (String) key;
-                    PlayerGroup group = PlayerGroup.deserialize((JSONObject) configItem.get(s));
+                    IffGroup group = IffGroup.deserialize((JSONObject) configItem.get(s));
 
                     configObjects.put(s, group);
                 }

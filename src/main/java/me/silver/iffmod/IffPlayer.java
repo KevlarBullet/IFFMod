@@ -64,4 +64,10 @@ public class IffPlayer implements JSONSerializable {
             this.colorIndex = index;
         }
     }
+
+    @Override
+    public String toString() {
+        return this.playerName;
+    }
+
 }
