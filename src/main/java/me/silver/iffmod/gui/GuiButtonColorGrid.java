@@ -102,4 +102,12 @@ public class GuiButtonColorGrid extends GuiButton {
     public GuiColor getActiveColor() {
         return GuiColor.getByColorIndex(activeIndex);
     }
+
+    public void setActiveColor(int colorIndex) {
+        if (colorIndex >= 0 && colorIndex <= 15) {
+            this.activeIndex = (short) colorIndex;
+        } else {
+            this.activeIndex = -1;
+        }
+    }
 }

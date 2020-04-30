@@ -28,7 +28,7 @@ public class PlayerConfig extends JSONConfig {
                     String s = (String) key;
                     IffPlayer player = IffPlayer.deserialize((JSONObject) configItem.get(s));
 
-                    configObjects.put(s, player);
+                    configObjects.put(s.toLowerCase(), player);
                 }
             }
         }

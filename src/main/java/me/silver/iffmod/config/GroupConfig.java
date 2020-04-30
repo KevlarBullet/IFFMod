@@ -24,7 +24,7 @@ public class GroupConfig extends JSONConfig {
                     String s = (String) key;
                     IffGroup group = IffGroup.deserialize((JSONObject) configItem.get(s));
 
-                    configObjects.put(s, group);
+                    configObjects.put(s.toLowerCase(), group);
                 }
             }
         }

@@ -6,12 +6,13 @@ import org.json.simple.JSONObject;
 public class IffPlayer implements JSONSerializable {
 
     public final String playerName;
+    private String originalName;
     private String displayName;
     private String groupName;
     private int colorIndex;
 
-    public IffPlayer(String playerName, int colorIndex) {
-        this(playerName, playerName, "", colorIndex);
+    public IffPlayer(String playerName) {
+        this(playerName, playerName, "", 15);
     }
 
     public IffPlayer(String playerName, String displayName, String groupName, int colorIndex) {

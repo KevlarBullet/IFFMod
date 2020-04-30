@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
@@ -90,6 +91,8 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
     // 0 = up button, 1 = down button, 2 = movable bar, 3 = background, -1 = not hovered
     @Override
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+        if (!this.enabled) return false;
+
         if (sbActiveButton != null) {
             sbActiveButton.setState(0);
             sbActiveButton = null;
@@ -108,20 +111,15 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
                 int hiddenItemCount = fullItemList.size() - buttonCount;
 
                 if (hiddenItemCount > 0) {
-                    int sbMinY = y + 6;
-                    int sbMaxY = y + height - 6 - scrollBar.height;
-                    int sbPositionCount = sbMaxY - sbMinY;
-                    float increment = (float) sbPositionCount / hiddenItemCount;
-
                     if (hoveredButton == buttonUpArrow) {
                         if (sbValue > 0) {
                             sbValue--;
-                            scrollBar.setPositionY(y + 6 + (int) (sbValue * increment));
+                            updateScrollBarPosition();
                         }
                     } else if (hoveredButton == buttonDownArrow) {
                         if (sbValue < hiddenItemCount) {
                             sbValue++;
-                            scrollBar.setPositionY(y + 6 + (int) (sbValue * increment));
+                            updateScrollBarPosition();
                         }
                     }
                 }
@@ -132,6 +130,16 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
         } else {
             return super.mousePressed(mc, mouseX, mouseY);
         }
+    }
+
+    private void updateScrollBarPosition() {
+        int hiddenItemCount = fullItemList.size() - buttonCount;
+        int sbMinY = y + 6;
+        int sbMaxY = y + height - 6 - scrollBar.height;
+        int sbPositionCount = sbMaxY - sbMinY;
+        float increment = (float) sbPositionCount / hiddenItemCount;
+
+        scrollBar.setPositionY(y + 6 + (int) (sbValue * increment));
     }
 
     @Override
@@ -199,6 +207,7 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
     @Override
     public void addItem(E item) {
         fullItemList.add(item);
+        updateScrollBarPosition();
     }
 
     @Override
@@ -213,9 +222,30 @@ public class GuiButtonScrollBox<E> extends GuiButtonList<E> {
 
     public void setDisplayedItems(int startIndex) {
         this.itemList.clear();
+        this.sbValue = startIndex;
 
         for (int i = startIndex; i < Math.min(fullItemList.size(), startIndex + buttonCount); i++) {
             itemList.add(fullItemList.get(i));
+        }
+    }
+
+    public void setDisplayedItem(E item) {
+        for (int i = 0; i < fullItemList.size(); i++) {
+            if (fullItemList.get(i) == item) {
+                if (i - sbValue < 0) {
+                    setDisplayedItems(i);
+                    activeItem = 0;
+                } else if (i - sbValue > 3) {
+                    int newDisplayIndex = Math.min(i, fullItemList.size() - 4);
+                    setDisplayedItems(newDisplayIndex);
+                    activeItem = i - newDisplayIndex;
+                } else {
+                    activeItem = i - sbValue;
+                }
+
+                updateScrollBarPosition();
+                break;
+            }
         }
     }
 

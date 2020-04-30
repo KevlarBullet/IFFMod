@@ -44,6 +44,10 @@ public enum GuiColor {
         return Integer.parseInt(rgbHex, 16) - 16777216;
     }
 
+    public short getColorIndex() {
+        return colorIndex;
+    }
+
 
     // This won't return null because the supplied color index will always be 0-15
     @SuppressWarnings("ConstantConditions")
