@@ -1,6 +1,7 @@
 package me.silver.iffmod.util;
 
 import me.silver.iffmod.Iffmod;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -11,10 +12,12 @@ public class KeyboardHandler {
 
     public static KeyBinding secureScreenshot = new KeyBinding("key.iff_secure_screenshot", Keyboard.KEY_P, "IFFMod");
     public static KeyBinding openGui = new KeyBinding("key.iff_open_gui", Keyboard.KEY_O, "IFFMod");
+    public static KeyBinding hitInfo = new KeyBinding("key.fitemebtich", Keyboard.KEY_F, "IFFMod");
 
     public final KeyBinding[] keys = {
             secureScreenshot,
             openGui,
+            hitInfo,
     };
 
     public void registerKeyBindings() {
@@ -29,6 +32,10 @@ public class KeyboardHandler {
             if (keyBinding.isPressed()) {
                 Iffmod.getInstance().handleKeyInput(keyBinding);
             }
+        }
+
+        if (Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isPressed()) {
+            Iffmod.getInstance().fixTabNames();
         }
     }
 }

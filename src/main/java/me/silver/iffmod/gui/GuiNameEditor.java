@@ -8,6 +8,8 @@ import me.silver.iffmod.config.json.JSONSerializable;
 import me.silver.iffmod.util.GuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
@@ -65,8 +67,9 @@ public class GuiNameEditor extends GuiScreen {
         textBoxes.add(textBoxPlayerSearch = new GuiTextFieldButTheIsEnabledBooleanIsAccessibleBecauseItsDumbThatItIsnt(-1, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 18, 138, 18));
         textBoxes.add(textBoxPlayerGroup = new GuiTextFieldButTheIsEnabledBooleanIsAccessibleBecauseItsDumbThatItIsnt(-2, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 132, 116, 18));
         textBoxes.add(textBoxGroupEditor = new GuiTextFieldButTheIsEnabledBooleanIsAccessibleBecauseItsDumbThatItIsnt(-3, mc.fontRenderer, this.GUI_CENTER_X + 8, this.GUI_CENTER_Y + 172, 116, 18));
-        textBoxGroupEditor.setText("Test I guess");
+//        textBoxGroupEditor.setText("Test I guess");
         textBoxGroupEditor.setEnabled(false);
+        textBoxPlayerGroup.setEnabled(false);
 
         buttonList.add(closeButton = new GuiButtonImageLayered(background, 0, GUI_CENTER_X + 157, GUI_CENTER_Y + 4, 12, 12, 184, 18, 244, 18));
         buttonList.add(playerSearchConfirm = new GuiButtonImageLayered(background, 1, GUI_CENTER_X + 151, GUI_CENTER_Y + 18, 18, 18, 184, 0, 238, 30));
@@ -128,6 +131,7 @@ public class GuiNameEditor extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    // TODO: Make each button's action its own method for better clarity
     protected void actionPerformed(GuiButton button, int mouseX, int mouseY) throws IOException {
         switch (button.id) {
             case 0: // GUI close button
@@ -138,10 +142,11 @@ public class GuiNameEditor extends GuiScreen {
                 break;
             case 2: // Player list confirm
                 handlePlayerSubmit();
-                break;
+                // Lack of a break statement here was intentional
             case 3: // Player list cancel
                 playerColor.setActiveColor(-1);
                 playerList.activeItem = -1;
+                textBoxPlayerGroup.setText("");
                 break;
             case 4: // Group editor add
                 if (activeTextBox != null) activeTextBox.setFocused(false);
@@ -165,15 +170,51 @@ public class GuiNameEditor extends GuiScreen {
             case 6: // Group editor cancel
                 handleGECancel();
                 break;
-            case 101:
+            case 100: // Player list
+                if (playerList.getHoveredIndex(mouseX, mouseY) > -1) {
+                    IffPlayer player = playerList.getActiveItem();
+
+                    if (player != null) {
+                        IffGroup group = player.getGroup();
+                        int color = player.getColorIndex();
+
+                        playerColor.setActiveColor(color);
+
+                        if (group != null) {
+                            textBoxPlayerGroup.setText(group.getGroupName());
+
+                            if (color == -1) {
+                                playerColor.setActiveColor(group.getDefaultColorIndex());
+                            }
+                        } else {
+                            textBoxPlayerGroup.setText("");
+                        }
+
+                    } else {
+                        playerColor.setActiveColor(-1);
+                        textBoxPlayerGroup.setText("");
+                    }
+                }
+                break;
+            case 101: // Player group list
                 if(playerGroupList.getHoveredIndex(mouseX, mouseY) > -1) {
                     IffGroup group = playerGroupList.getActiveItem();
+                    IffPlayer player = playerList.getActiveItem();
 
                     if (group != null) {
                         playerGroupList.enabled = false;
                         playerGroupList.activeItem = -1;
-                        textBoxPlayerGroup.setText(group.getGroupName());
+
+                        if (player != null) {
+                            textBoxPlayerGroup.setText(group.getGroupName());
+
+                            if (player.getColorIndex() == -1) {
+                                playerColor.setActiveColor(group.getDefaultColorIndex());
+                                player.setColorIndex(group.getDefaultColorIndex());
+                            }
+                        }
                     }
+
                 }
                 break;
             case 102: // Group list (editor)
@@ -194,7 +235,7 @@ public class GuiNameEditor extends GuiScreen {
                     }
                 }
                 break;
-            case 10000:
+            case 10000: // Player search cancel
                 textBoxPlayerSearch.setText("");
                 break;
             case 10001: // Player group editor dropdown
@@ -229,8 +270,6 @@ public class GuiNameEditor extends GuiScreen {
                 textBoxGroupEditor.setEnabled(false);
                 groupColor.setActiveColor(-1);
             }
-        } else {
-            Iffmod.LOGGER.info("This is the problem, dummy");
         }
 
         super.keyTyped(typedChar, keyCode);
@@ -282,6 +321,7 @@ public class GuiNameEditor extends GuiScreen {
 
     }
 
+    // Realistically this shouldn't be used for every textbox
     private void textFieldSubmit(GuiTextField field) {
         String text = field.getText();
 
@@ -293,16 +333,18 @@ public class GuiNameEditor extends GuiScreen {
         if (!text.equals("")) {
             switch (field.getId()) {
                 case -1:
-                    GuiButtonScrollBox<IffPlayer> iffPlayerList = playerList;
                     IffPlayer player = (IffPlayer) playerConfig.get(text);
 
                     if (player == null) {
                         player = new IffPlayer(text);
                         playerConfig.add(text, player);
-                        iffPlayerList.addItem(player);
+                        playerList.addItem(player);
                     }
 
-                    iffPlayerList.setDisplayedItem(player);
+                    playerList.setDisplayedItem(player);
+                    textBoxPlayerGroup.setText(player.getGroup() != null ? player.getGroup().getGroupName() : "");
+                    playerColor.setActiveColor(player.getColorIndex());
+                    textBoxPlayerSearch.setText("");
                     break;
                 case -3:
                     GuiColor color = groupColor.getActiveColor();
@@ -314,6 +356,8 @@ public class GuiNameEditor extends GuiScreen {
 
                         groupList.addItem(group);
                         playerGroupList.addItem(group);
+                    } else {
+                        group.setColorIndex(color.getColorIndex());
                     }
             }
         }
@@ -323,6 +367,12 @@ public class GuiNameEditor extends GuiScreen {
     public void onGuiClosed() {
         playerConfig.saveConfig();
         groupConfig.saveConfig();
+
+        for (Entity entity : mc.world.loadedEntityList) {
+            if (entity instanceof EntityPlayer) {
+                ((EntityPlayer) entity).refreshDisplayName();
+            }
+        }
 
         super.onGuiClosed();
     }
@@ -335,18 +385,22 @@ public class GuiNameEditor extends GuiScreen {
     }
 
     private void handlePlayerSubmit() {
-        GuiButtonScrollBox<IffPlayer> iffPlayerBox = playerList;
-        GuiButtonColorGrid grid = playerColor;
-        GuiColor color = grid.getActiveColor();
+        GuiColor color = playerColor.getActiveColor();
 
-        if (color != null && iffPlayerBox.activeItem > -1) {
-            IffPlayer player = iffPlayerBox.getActiveItem();
+        if (playerList.activeItem > -1) {
+            IffPlayer player = playerList.getActiveItem();
 
-            player.setColorIndex(color.getColorIndex());
+            if (player != null) {
+                if (color != null) player.setColorIndex(color.getColorIndex());
+
+                String groupName = textBoxPlayerGroup.getText();
+                player.setGroup((IffGroup) groupConfig.get(groupName));
+            }
         }
 
-        grid.setActiveColor(-1);
-        iffPlayerBox.activeItem = -1;
+        playerList.activeItem = -1;
+        playerColor.setActiveColor(-1);
+        textBoxPlayerGroup.setText("");
     }
 
     private void handleGroupSubmit() {

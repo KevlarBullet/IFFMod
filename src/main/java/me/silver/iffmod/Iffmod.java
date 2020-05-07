@@ -12,6 +12,9 @@ import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,6 +29,8 @@ import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Mod(modid = Iffmod.MODID, name = Iffmod.NAME, version = Iffmod.VERSION)
 public class Iffmod {
@@ -33,20 +38,17 @@ public class Iffmod {
     public static final String NAME = "IFFMod";
     public static final String VERSION = "1.0";
 
+    public static Iffmod getInstance() {
+        return INSTANCE;
+    }
     public static Logger LOGGER;
 
+    private final Pattern PATTERN = Pattern.compile("(\\u00a7[0-9a-f](\\[[A-Za-z]+])?) ?(\\w+)");
     private boolean doNameReset = false;
-
-    public Map<String, String> originalNames = new HashMap<>();
-    public Map<String, TextComponentString> modifiedNames = new HashMap<>();
 
     public Minecraft mc;
     public JSONConfig playerConfig;
     public JSONConfig groupConfig;
-
-    public static Iffmod getInstance() {
-        return INSTANCE;
-    }
 
     /**
      * This is the instance of your mod as created by Forge. It will never be null.
@@ -61,6 +63,7 @@ public class Iffmod {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+
         this.mc = Minecraft.getMinecraft();
 
         KeyboardHandler handler = new KeyboardHandler();
@@ -120,8 +123,85 @@ public class Iffmod {
 //
 //                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
 //                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
+            } else if (key == KeyboardHandler.hitInfo) {
+                RayTraceResult result = mc.objectMouseOver;
+
+                mc.player.swingArm(EnumHand.MAIN_HAND);
+
+                if (result.typeOfHit == RayTraceResult.Type.ENTITY) {
+                    mc.playerController.attackEntity(mc.player, result.entityHit);
+                }
             }
         }
+    }
+
+    public void fixTabNames() {
+        if (Minecraft.getMinecraft().getConnection() != null) {
+            // Set tab list names (Thanks, Einstein)
+            GuiPlayerTabOverlay tabOverlay = Minecraft.getMinecraft().ingameGUI.getTabList();
+
+            for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
+                String username = npi.getGameProfile().getName();
+                String tabName = tabOverlay.getPlayerName(npi);
+
+                if (playerConfig.get(username) != null)
+                    npi.setDisplayName(new TextComponentString(getIffName(username, tabName)));
+
+//                    Iffmod.LOGGER.info("##########################################################");
+//                    Iffmod.LOGGER.info(username);
+//                    Iffmod.LOGGER.info(tabName);
+//                    Iffmod.LOGGER.info("##########################################################");
+
+//                    if (!instance.originalNames.containsKey(username)) {
+//                        instance.originalNames.put(username, tabName);
+//                    }
+//
+//                    if (instance.modifiedNames.containsKey(username)) {
+//                        npi.setDisplayName(instance.modifiedNames.get(username));
+//                    } else {
+//                        String rank = "";
+//                        String[] splitName = tabName.split(" ");
+//
+//                        if (splitName.length > 1) {
+//                            rank = splitName[0] + " ";
+//                        }
+//
+//                        TextComponentString nameComponent = new TextComponentString(rank + TextFormatting.DARK_BLUE + username);
+//                        npi.setDisplayName(nameComponent);
+//                        instance.modifiedNames.put(username, nameComponent);
+//                    }
+            }
+
+        }
+
+    }
+
+    public String getIffName(String username, String displayName) {
+        if (this.playerConfig.get(username) != null) {
+            Matcher matcher = PATTERN.matcher(displayName);
+            String prefix = matcher.group(1);
+            IffPlayer player = (IffPlayer) this.playerConfig.get(username);
+
+            StringBuilder newName = new StringBuilder();
+            newName.append(prefix)
+                    .append(" ")
+                    .append(TextFormatting.fromColorIndex(player.getColorIndex()))
+                    .append(username);
+
+            if (player.getGroup() != null) {
+                IffGroup group = player.getGroup();
+
+                newName.append(" ")
+                        .append(TextFormatting.fromColorIndex(group.getDefaultColorIndex()))
+                        .append("[")
+                        .append(group.getGroupName())
+                        .append("]");
+            }
+
+            return newName.toString();
+        }
+
+        return displayName;
     }
 
     public boolean shouldResetNames() {
