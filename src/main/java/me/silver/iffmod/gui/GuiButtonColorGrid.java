@@ -1,11 +1,12 @@
 package me.silver.iffmod.gui;
 
-import me.silver.iffmod.Iffmod;
 import me.silver.iffmod.util.GuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class GuiButtonColorGrid extends GuiButton {
 
@@ -70,6 +71,7 @@ public class GuiButtonColorGrid extends GuiButton {
     }
 
     @Override
+    @ParametersAreNonnullByDefault
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         if (isHovered(mouseX, mouseY)) {
             int mouseOffsetX = mouseX - x;

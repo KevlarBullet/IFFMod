@@ -5,6 +5,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 // Honestly, it's just a button
 public class GuiButtonImageLayered extends GuiButton {
 
@@ -29,6 +31,7 @@ public class GuiButtonImageLayered extends GuiButton {
     }
 
     @Override
+    @ParametersAreNonnullByDefault
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
         if (!shouldDraw) return;
 
@@ -59,6 +62,7 @@ public class GuiButtonImageLayered extends GuiButton {
     }
 
     @Override
+    @ParametersAreNonnullByDefault
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
         if (this.isHovered(mouseX, mouseY) && this.enabled) {
             this.isActive = true;

@@ -1,13 +1,10 @@
 package me.silver.iffmod;
 
-import me.silver.iffmod.config.json.JSONSerializable;
-import org.json.simple.JSONObject;
-
-public class IffPlayer implements JSONSerializable {
+public class IffPlayer {
 
     public final String playerName;
     private String displayName;
-    private IffGroup group;
+    private String group;
     private int colorIndex;
 
     public IffPlayer(String playerName) {
@@ -17,31 +14,10 @@ public class IffPlayer implements JSONSerializable {
     public IffPlayer(String playerName, String displayName, String groupName, int colorIndex) {
         this.playerName = playerName;
         this.displayName = displayName;
-        this.group = (IffGroup) Iffmod.getInstance().groupConfig.get(groupName);
+        this.group = groupName;
         this.colorIndex = colorIndex;
     }
 
-    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unchecked"})
-    @Override
-    public JSONObject serialize() {
-        JSONObject playerObject = new JSONObject();
-
-        playerObject.put("player_name", playerName);
-        playerObject.put("display_name", displayName);
-        playerObject.put("group_name", (group != null ? group.getGroupName() : ""));
-        playerObject.put("color_index", colorIndex);
-
-        return playerObject;
-    }
-
-    public static IffPlayer deserialize(JSONObject object) {
-        String playerName = (String) object.get("player_name");
-        String displayName = (String) object.get("display_name");
-        String groupName = (String) object.get("group_name");
-        int colorIndex = (int) ((long) object.get("color_index"));
-
-        return new IffPlayer(playerName, displayName, groupName, colorIndex);
-    }
 
     public String getDisplayName() {
         return displayName;
@@ -51,11 +27,11 @@ public class IffPlayer implements JSONSerializable {
         this.displayName = displayName;
     }
 
-    public IffGroup getGroup() {
+    public String getGroup() {
         return group;
     }
 
-    public void setGroup(IffGroup group) {
+    public void setGroup(String group) {
         this.group = group;
     }
 

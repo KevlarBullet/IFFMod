@@ -2,9 +2,9 @@ package me.silver.iffmod.gui;
 
 import me.silver.iffmod.IffGroup;
 import me.silver.iffmod.IffPlayer;
-import me.silver.iffmod.Iffmod;
-import me.silver.iffmod.config.json.JSONConfig;
-import me.silver.iffmod.config.json.JSONSerializable;
+import me.silver.iffmod.IffMod;
+import me.silver.iffmod.config.GroupConfig;
+import me.silver.iffmod.config.PlayerConfig;
 import me.silver.iffmod.util.GuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -12,17 +12,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 // A healthy mix of good and lazy programming practices
+@SuppressWarnings("FieldCanBeLocal")
 public class GuiNameEditor extends GuiScreen {
 
-    private final JSONConfig playerConfig = Iffmod.getInstance().playerConfig;
-    private final JSONConfig groupConfig = Iffmod.getInstance().groupConfig;
+    private final PlayerConfig playerConfig = IffMod.getInstance().playerConfig;
+    private final GroupConfig groupConfig = IffMod.getInstance().groupConfig;
 
-    public final ResourceLocation background = new ResourceLocation(Iffmod.MODID,"textures/background.png");
+    public final ResourceLocation background = new ResourceLocation(IffMod.MODID,"textures/background.png");
 
     private int GUI_CENTER_X;
     private int GUI_CENTER_Y;
@@ -98,13 +100,13 @@ public class GuiNameEditor extends GuiScreen {
 
         // I'm sure there's a better way to do this but I don't feel like thinking about it right now
 
-        for (JSONSerializable group : groupConfig.getAll()) {
-            groupList.addItem((IffGroup) group);
-            playerGroupList.addItem((IffGroup) group);
+        for (IffGroup group : groupConfig.getAll()) {
+            groupList.addItem(group);
+            playerGroupList.addItem(group);
         }
 
-        for (JSONSerializable player : playerConfig.getAll()) {
-            playerList.addItem((IffPlayer) player);
+        for (IffPlayer player : playerConfig.getAll()) {
+            playerList.addItem(player);
         }
 
         super.initGui();
@@ -175,7 +177,7 @@ public class GuiNameEditor extends GuiScreen {
                     IffPlayer player = playerList.getActiveItem();
 
                     if (player != null) {
-                        IffGroup group = player.getGroup();
+                        IffGroup group = groupConfig.get(player.getGroup());
                         int color = player.getColorIndex();
 
                         playerColor.setActiveColor(color);
@@ -333,7 +335,7 @@ public class GuiNameEditor extends GuiScreen {
         if (!text.equals("")) {
             switch (field.getId()) {
                 case -1:
-                    IffPlayer player = (IffPlayer) playerConfig.get(text);
+                    IffPlayer player = playerConfig.get(text);
 
                     if (player == null) {
                         player = new IffPlayer(text);
@@ -342,13 +344,13 @@ public class GuiNameEditor extends GuiScreen {
                     }
 
                     playerList.setDisplayedItem(player);
-                    textBoxPlayerGroup.setText(player.getGroup() != null ? player.getGroup().getGroupName() : "");
+                    textBoxPlayerGroup.setText(player.getGroup());
                     playerColor.setActiveColor(player.getColorIndex());
                     textBoxPlayerSearch.setText("");
                     break;
                 case -3:
                     GuiColor color = groupColor.getActiveColor();
-                    IffGroup group = (IffGroup) groupConfig.get(text);
+                    IffGroup group = groupConfig.get(text);
 
                     if (group == null) {
                         group = new IffGroup(text, (color != null) ? color.getColorIndex() : -1);
@@ -378,6 +380,7 @@ public class GuiNameEditor extends GuiScreen {
     }
 
     @Override
+    @ParametersAreNonnullByDefault
     public void onResize(Minecraft mcIn, int w, int h) {
         // Prevents textboxes from duplicating on window resize
         textBoxes.clear();
@@ -393,8 +396,7 @@ public class GuiNameEditor extends GuiScreen {
             if (player != null) {
                 if (color != null) player.setColorIndex(color.getColorIndex());
 
-                String groupName = textBoxPlayerGroup.getText();
-                player.setGroup((IffGroup) groupConfig.get(groupName));
+                player.setGroup(textBoxPlayerGroup.getText());
             }
         }
 

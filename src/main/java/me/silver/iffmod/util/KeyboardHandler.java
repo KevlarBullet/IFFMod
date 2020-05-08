@@ -1,6 +1,6 @@
 package me.silver.iffmod.util;
 
-import me.silver.iffmod.Iffmod;
+import me.silver.iffmod.IffMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -30,12 +30,12 @@ public class KeyboardHandler {
     public void keyInputEvent(InputEvent.KeyInputEvent event) {
         for (KeyBinding keyBinding : this.keys) {
             if (keyBinding.isPressed()) {
-                Iffmod.getInstance().handleKeyInput(keyBinding);
+                IffMod.getInstance().handleKeyInput(keyBinding);
             }
         }
 
         if (Minecraft.getMinecraft().gameSettings.keyBindPlayerList.isPressed()) {
-            Iffmod.getInstance().fixTabNames();
+            IffMod.getInstance().fixTabNames();
         }
     }
 }

@@ -5,7 +5,6 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class GuiButtonScrollBox<E> extends GuiButtonList<E> {

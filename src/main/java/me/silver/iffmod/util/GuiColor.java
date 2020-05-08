@@ -2,9 +2,6 @@ package me.silver.iffmod.util;
 
 import net.minecraft.util.text.TextFormatting;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum GuiColor {
     BLACK((short) 0, "000000"),
     DARK_BLUE((short) 1, "0000AA"),
