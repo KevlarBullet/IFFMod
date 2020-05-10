@@ -51,7 +51,7 @@ public class GroupConfig {
     }
 
     public void remove(IffGroup group) {
-        String name = group.getGroupName();
+        String name = group.getGroupName().toLowerCase();
         groups.remove(name);
     }
 
