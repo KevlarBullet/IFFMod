@@ -421,6 +421,7 @@ public class GuiNameEditor extends GuiScreen {
         groupColor.setActiveColor(-1);
     }
 
+    // TODO: Delete groups doesn't work
     public void handleItemRemoved(Object o){
         if (o instanceof IffPlayer) {
             playerConfig.remove((IffPlayer) o);

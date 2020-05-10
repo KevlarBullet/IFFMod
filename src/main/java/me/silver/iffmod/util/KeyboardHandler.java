@@ -12,12 +12,10 @@ public class KeyboardHandler {
 
     public static KeyBinding secureScreenshot = new KeyBinding("key.iff_secure_screenshot", Keyboard.KEY_P, "IFFMod");
     public static KeyBinding openGui = new KeyBinding("key.iff_open_gui", Keyboard.KEY_O, "IFFMod");
-    public static KeyBinding hitInfo = new KeyBinding("key.fitemebtich", Keyboard.KEY_F, "IFFMod");
 
     public final KeyBinding[] keys = {
             secureScreenshot,
             openGui,
-            hitInfo,
     };
 
     public void registerKeyBindings() {

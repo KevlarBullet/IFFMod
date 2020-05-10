@@ -117,14 +117,6 @@ public class IffMod {
 //
 //                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
 //                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
-            } else if (key == KeyboardHandler.hitInfo) {
-                RayTraceResult result = mc.objectMouseOver;
-
-                mc.player.swingArm(EnumHand.MAIN_HAND);
-
-                if (result.typeOfHit == RayTraceResult.Type.ENTITY) {
-                    mc.playerController.attackEntity(mc.player, result.entityHit);
-                }
             }
         }
     }
@@ -137,7 +129,7 @@ public class IffMod {
             for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
                 String username = npi.getGameProfile().getName();
                 String tabName = tabOverlay.getPlayerName(npi);
-                LOGGER.info(tabName);
+//                LOGGER.info(tabName);
 
                 if (playerConfig.get(username) != null)
                     npi.setDisplayName(new TextComponentString(getIffName(username, tabName)));
@@ -155,11 +147,11 @@ public class IffMod {
                 IffPlayer player = this.playerConfig.get(username);
                 String prefix = matcher.group(1);
                 if (matcher.group(2) != null) prefix += matcher.group(2);
-                LOGGER.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                LOGGER.info(displayName);
-                LOGGER.info(matcher.group(1));
-                LOGGER.info(matcher.group(2));
-                LOGGER.info(matcher.group(3));
+//                LOGGER.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+//                LOGGER.info(displayName);
+//                LOGGER.info(matcher.group(1));
+//                LOGGER.info(matcher.group(2));
+//                LOGGER.info(matcher.group(3));
 
                 StringBuilder newName = new StringBuilder();
                 newName.append(prefix)
