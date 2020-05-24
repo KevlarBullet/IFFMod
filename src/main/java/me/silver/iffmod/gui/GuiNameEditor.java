@@ -8,6 +8,7 @@ import me.silver.iffmod.config.PlayerConfig;
 import me.silver.iffmod.util.GuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -23,6 +24,11 @@ public class GuiNameEditor extends GuiScreen {
 
     private final PlayerConfig playerConfig = IffMod.getInstance().playerConfig;
     private final GroupConfig groupConfig = IffMod.getInstance().groupConfig;
+
+    private final ArrayList<String> onlinePlayers = new ArrayList<>();
+    private String playerSearchAutoFill = "";
+    private String currentPlayer = "";
+    private int autoFillPosition = -1;
 
     public final ResourceLocation background = new ResourceLocation(IffMod.MODID,"textures/background.png");
 
@@ -109,6 +115,12 @@ public class GuiNameEditor extends GuiScreen {
             playerList.addItem(player);
         }
 
+        if (Minecraft.getMinecraft().getConnection() != null) {
+            for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
+                this.onlinePlayers.add(npi.getGameProfile().getName());
+            }
+        }
+
         super.initGui();
     }
 
@@ -128,6 +140,11 @@ public class GuiNameEditor extends GuiScreen {
 
         for (GuiTextField textField : this.textBoxes) {
             textField.drawTextBox();
+        }
+
+        // TODO: Disable drawing of textbox cursor when autofill is displayed (This is harder than I'd like it to be)
+        if (!currentPlayer.isEmpty() && autoFillPosition > -1 && activeTextBox == textBoxPlayerSearch) {
+            drawString(mc.fontRenderer, playerSearchAutoFill + " (TAB)", textBoxPlayerSearch.x + 4 + autoFillPosition, textBoxPlayerSearch.y + 5, 16777045);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -218,6 +235,7 @@ public class GuiNameEditor extends GuiScreen {
                     }
 
                 }
+
                 break;
             case 102: // Group list (editor)
                 if(groupList.getHoveredIndex(mouseX, mouseY) > -1) {
@@ -261,20 +279,79 @@ public class GuiNameEditor extends GuiScreen {
 
             if (keyCode == 28) {
                 textFieldSubmit(activeTextBox);
+            } else {
+                if (activeTextBox == textBoxPlayerSearch) {
+                    String text = textBoxPlayerSearch.getText().toLowerCase();
 
-                groupEditorAccept.shouldDraw = false;
-                groupEditorAccept.enabled = false;
+                    if (!text.isEmpty()) {
+                        if (keyCode == 15) { // Tab key
+                            if (!currentPlayer.isEmpty()) {
+                                // TODO: Make this less stupid (also get rid of textFieldSubmit method entirely)
+                                activeTextBox.setText(currentPlayer);
+                                textFieldSubmit(activeTextBox);
+                                clearAutoFill();
+                                return;
+                            }
+                        }
 
-                groupEditorAdd.shouldDraw = true;
-                groupEditorAdd.enabled = true;
+                        String matchedPlayer = "";
 
-                textBoxGroupEditor.setText("");
-                textBoxGroupEditor.setEnabled(false);
-                groupColor.setActiveColor(-1);
+                        for (String name : onlinePlayers) {
+                            if (name.toLowerCase().startsWith(text)) {
+                                matchedPlayer = name;
+                                break;
+                            }
+                        }
+
+                        if (matchedPlayer.isEmpty()) {
+                            clearAutoFill();
+                        } else {
+                            setAutoFill(matchedPlayer.substring(text.length()), matchedPlayer, mc.fontRenderer.getStringWidth(text));
+                        }
+                    }
+
+                }
             }
+
+
+//                if (keyCode == 14 || String.valueOf(typedChar).matches("\\w")) {
+//                if (activeTextBox == textBoxPlayerSearch) {
+//                    String text = textBoxPlayerSearch.getText().toLowerCase();
+//
+//                    if (text.length() >= 1) {
+//                        for (String name : onlinePlayers) {
+//                            if (name.toLowerCase().startsWith(text)) {
+//                                setAutoFill(name.substring(text.length()), name, mc.fontRenderer.getStringWidth(text));
+//                            } else {
+//                                clearAutoFill();
+//                            }
+//                        }
+//                    } else {
+//                        clearAutoFill();
+//                    }
+//                }
+//            } else if (keyCode == 15) {
+//                if (activeTextBox == textBoxPlayerSearch && !currentPlayer.isEmpty()) {
+//                    // TODO: Make this less dumb (involves basically removing textFieldSubmit())
+//                    activeTextBox.setText(currentPlayer);
+//                    textFieldSubmit(activeTextBox);
+//                    clearAutoFill();
+//                }
+//            }
         }
 
         super.keyTyped(typedChar, keyCode);
+    }
+
+    private void setAutoFill(String partialName, String fullName, int position) {
+        playerSearchAutoFill = partialName;
+        currentPlayer = fullName;
+        autoFillPosition = position;
+    }
+
+    private void clearAutoFill() {
+        IffMod.LOGGER.info("is it this tho");
+        setAutoFill("", "", -1);
     }
 
     // Copy default mouse behavior but break if a clicked button returns true
@@ -325,6 +402,17 @@ public class GuiNameEditor extends GuiScreen {
 
     // Realistically this shouldn't be used for every textbox
     private void textFieldSubmit(GuiTextField field) {
+
+        groupEditorAccept.shouldDraw = false;
+        groupEditorAccept.enabled = false;
+
+        groupEditorAdd.shouldDraw = true;
+        groupEditorAdd.enabled = true;
+
+        textBoxGroupEditor.setText("");
+        textBoxGroupEditor.setEnabled(false);
+        groupColor.setActiveColor(-1);
+
         String text = field.getText();
 
         if (activeTextBox != null) {
@@ -367,9 +455,6 @@ public class GuiNameEditor extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        playerConfig.saveConfig();
-        groupConfig.saveConfig();
-
         for (Entity entity : mc.world.loadedEntityList) {
             if (entity instanceof EntityPlayer) {
                 ((EntityPlayer) entity).refreshDisplayName();

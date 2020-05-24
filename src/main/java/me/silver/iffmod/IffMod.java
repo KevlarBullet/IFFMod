@@ -10,8 +10,6 @@ import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
@@ -22,6 +20,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +38,9 @@ public class IffMod {
     private final Pattern PATTERN = Pattern.compile("(\\u00a7[0-9a-f])(\\[\\w+] )?(\\u00a7[0-9a-f])?(\\w{3,})");
 //    private final Pattern PATTERN = Pattern.compile("(?i)\\u00a7[0-9A-FK-OR]");
     private boolean doNameReset = false;
+    private boolean isReady = false;
+
+    private HashMap<String, String> originalNames;
 
     public Minecraft mc;
     public PlayerConfig playerConfig;
@@ -73,9 +75,29 @@ public class IffMod {
         playerConfig = new PlayerConfig(getDataPath(), "players.json");
         groupConfig = new GroupConfig(getDataPath(), "groups.json");
 
-        playerConfig.loadConfig();
-        groupConfig.loadConfig();
+        this.load();
+    }
 
+    public void load() {
+        if (!this.isReady) {
+            playerConfig.loadConfig();
+            groupConfig.loadConfig();
+
+            if (originalNames == null) originalNames = new HashMap<>();
+
+            this.isReady = true;
+        }
+    }
+
+    public void unload() {
+        if (this.isReady) {
+            playerConfig.saveConfig();
+            groupConfig.saveConfig();
+
+            originalNames.clear();
+
+            this.isReady = false;
+        }
     }
 
     public void togglePlayerColors(boolean shouldDisplayColors) {
@@ -100,40 +122,44 @@ public class IffMod {
         if (!(Minecraft.getMinecraft().world == null) && Minecraft.getMinecraft().currentScreen == null) {
             if (key == KeyboardHandler.openGui) {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiNameEditor());
-            } else if (key == KeyboardHandler.secureScreenshot) {
-//                JSONArray array = new JSONArray();
-//
-//                for (EntityPlayer player : mc.world.playerEntities) {
-//                    JSONObject playerObject = new JSONObject();
-//                    playerObject.put("playerName", player.getName());
-//
-//                    array.add(playerObject);
-//                }
-//
-//                JSONHandler.writeFile(getDataPath(), "test.json", array);
-//                this.resetPlayerNames();
-//
-//                // Add 1 tick of delay somehow
-//
-//                this.mc.ingameGUI.getChatGUI().printChatMessage(ScreenShotHelper.saveScreenshot(
-//                        this.mc.gameDir, this.mc.displayWidth, this.mc.displayHeight, this.mc.getFramebuffer()));
+            } else if (key == KeyboardHandler.toggleColorDisplay) {
+                this.doNameReset = !doNameReset;
+
+                for (EntityPlayer player : Minecraft.getMinecraft().world.playerEntities) {
+                    player.refreshDisplayName();
+                }
             }
         }
     }
 
     public void fixTabNames() {
         if (Minecraft.getMinecraft().getConnection() != null) {
+            HashMap<String, String> originalNameMap = new HashMap<>();
+
             // Set tab list names (Thanks, Einstein)
             GuiPlayerTabOverlay tabOverlay = Minecraft.getMinecraft().ingameGUI.getTabList();
 
             for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
                 String username = npi.getGameProfile().getName();
                 String tabName = tabOverlay.getPlayerName(npi);
-//                LOGGER.info(tabName);
 
-                if (playerConfig.get(username) != null)
-                    npi.setDisplayName(new TextComponentString(getIffName(username, tabName)));
+                String originalName = this.originalNames.get(username);
+
+                if (originalName != null) {
+                    originalNameMap.put(username, originalName);
+                } else {
+                    originalNameMap.put(username, originalName = tabName);
+                }
+
+                if (doNameReset) {
+                    npi.setDisplayName(new TextComponentString(originalName));
+                } else {
+                    if (playerConfig.get(username) != null)
+                        npi.setDisplayName(new TextComponentString(getIffName(username, tabName)));
+                }
             }
+
+            this.originalNames = originalNameMap;
 
         }
 
