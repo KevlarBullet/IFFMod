@@ -100,22 +100,22 @@ public class IffMod {
         }
     }
 
-    public void togglePlayerColors(boolean shouldDisplayColors) {
-        if (Minecraft.getMinecraft().getConnection() != null) {
-            GuiPlayerTabOverlay tabOverlay = Minecraft.getMinecraft().ingameGUI.getTabList();
-
-            for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
-//                Iffmod.LOGGER.info(npi.getGameProfile().getName() + " - " + tabOverlay.getPlayerName(npi));
-                npi.setDisplayName(new TextComponentString(TextFormatting.DARK_BLUE + npi.getGameProfile().getName()));
-            }
-
-            this.doNameReset = !shouldDisplayColors;
-
-            for (EntityPlayer player : Minecraft.getMinecraft().world.playerEntities) {
-                player.refreshDisplayName();
-            }
-        }
-    }
+//    public void togglePlayerColors(boolean shouldDisplayColors) {
+//        if (Minecraft.getMinecraft().getConnection() != null) {
+//            GuiPlayerTabOverlay tabOverlay = Minecraft.getMinecraft().ingameGUI.getTabList();
+//
+//            for (NetworkPlayerInfo npi : Minecraft.getMinecraft().getConnection().getPlayerInfoMap()) {
+////                Iffmod.LOGGER.info(npi.getGameProfile().getName() + " - " + tabOverlay.getPlayerName(npi));
+//                npi.setDisplayName(new TextComponentString(TextFormatting.DARK_BLUE + npi.getGameProfile().getName()));
+//            }
+//
+//            this.doNameReset = !shouldDisplayColors;
+//
+//            for (EntityPlayer player : Minecraft.getMinecraft().world.playerEntities) {
+//                player.refreshDisplayName();
+//            }
+//        }
+//    }
 
     public void handleKeyInput(KeyBinding key) {
         // Check if the player is in a game and does not already have a GUI open

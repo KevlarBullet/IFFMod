@@ -157,7 +157,7 @@ public class GuiNameEditor extends GuiScreen {
                 Minecraft.getMinecraft().displayGuiScreen(null);
                 break;
             case 1: // Player search confirm
-                textFieldSubmit(textBoxPlayerSearch);
+                handlePlayerSearchSubmit();
                 break;
             case 2: // Player list confirm
                 handlePlayerSubmit();
@@ -184,8 +184,8 @@ public class GuiNameEditor extends GuiScreen {
                 groupColor.setActiveColor(-1);
                 break;
             case 5: // Group editor accept
-                textFieldSubmit(textBoxGroupEditor);
-                // The lack of a break statement here was intentional - the cancel code should run in both cases
+                handleGroupSubmit();
+                break;
             case 6: // Group editor cancel
                 handleGECancel();
                 break;
@@ -278,7 +278,11 @@ public class GuiNameEditor extends GuiScreen {
             activeTextBox.textboxKeyTyped(typedChar, keyCode);
 
             if (keyCode == 28) {
-                textFieldSubmit(activeTextBox);
+                if (activeTextBox == textBoxGroupEditor) {
+                    handleGroupSubmit();
+                } else if (activeTextBox == textBoxPlayerSearch) {
+                    handlePlayerSearchSubmit();
+                }
             } else {
                 if (activeTextBox == textBoxPlayerSearch) {
                     String text = textBoxPlayerSearch.getText().toLowerCase();
@@ -288,7 +292,7 @@ public class GuiNameEditor extends GuiScreen {
                             if (!currentPlayer.isEmpty()) {
                                 // TODO: Make this less stupid (also get rid of textFieldSubmit method entirely)
                                 activeTextBox.setText(currentPlayer);
-                                textFieldSubmit(activeTextBox);
+                                handlePlayerSearchSubmit();
                                 clearAutoFill();
                                 return;
                             }
@@ -400,20 +404,35 @@ public class GuiNameEditor extends GuiScreen {
 
     }
 
-    // Realistically this shouldn't be used for every textbox
-    private void textFieldSubmit(GuiTextField field) {
+    private void handleGroupSubmit() {
+        if (activeTextBox != null) {
+            activeTextBox.setText("");
+            activeTextBox.setFocused(false);
+        }
 
-        groupEditorAccept.shouldDraw = false;
-        groupEditorAccept.enabled = false;
+        String text = textBoxGroupEditor.getText();
 
-        groupEditorAdd.shouldDraw = true;
-        groupEditorAdd.enabled = true;
+        GuiColor color = groupColor.getActiveColor();
+        IffGroup group = groupConfig.get(text);
 
-        textBoxGroupEditor.setText("");
-        textBoxGroupEditor.setEnabled(false);
-        groupColor.setActiveColor(-1);
+        if (group == null) {
+            group = new IffGroup(text, (color != null) ? color.getColorIndex() : -1);
+            groupConfig.add(text, group);
 
-        String text = field.getText();
+            groupList.addItem(group);
+            playerGroupList.addItem(group);
+        } else {
+            if (color != null) {
+                group.setColorIndex(color.getColorIndex());
+            }
+
+        }
+
+        handleGECancel();
+    }
+
+    private void handlePlayerSearchSubmit() {
+        String text = textBoxPlayerSearch.getText();
 
         if (activeTextBox != null) {
             activeTextBox.setText("");
@@ -421,35 +440,22 @@ public class GuiNameEditor extends GuiScreen {
         }
 
         if (!text.equals("")) {
-            switch (field.getId()) {
-                case -1:
-                    IffPlayer player = playerConfig.get(text);
+//            switch (field.getId()) {
+//                case -1:
+            IffPlayer player = playerConfig.get(text);
 
-                    if (player == null) {
-                        player = new IffPlayer(text);
-                        playerConfig.add(text, player);
-                        playerList.addItem(player);
-                    }
-
-                    playerList.setDisplayedItem(player);
-                    textBoxPlayerGroup.setText(player.getGroup());
-                    playerColor.setActiveColor(player.getColorIndex());
-                    textBoxPlayerSearch.setText("");
-                    break;
-                case -3:
-                    GuiColor color = groupColor.getActiveColor();
-                    IffGroup group = groupConfig.get(text);
-
-                    if (group == null) {
-                        group = new IffGroup(text, (color != null) ? color.getColorIndex() : -1);
-                        groupConfig.add(text, group);
-
-                        groupList.addItem(group);
-                        playerGroupList.addItem(group);
-                    } else {
-                        group.setColorIndex(color.getColorIndex());
-                    }
+            if (player == null) {
+                player = new IffPlayer(text);
+                playerConfig.add(text, player);
+                playerList.addItem(player);
             }
+
+            playerList.setDisplayedItem(player);
+            textBoxPlayerGroup.setText(player.getGroup());
+            playerColor.setActiveColor(player.getColorIndex());
+            textBoxPlayerSearch.setText("");
+//                    break;
+//            }
         }
     }
 
@@ -488,10 +494,6 @@ public class GuiNameEditor extends GuiScreen {
         playerList.activeItem = -1;
         playerColor.setActiveColor(-1);
         textBoxPlayerGroup.setText("");
-    }
-
-    private void handleGroupSubmit() {
-
     }
 
     private void handleGECancel() {

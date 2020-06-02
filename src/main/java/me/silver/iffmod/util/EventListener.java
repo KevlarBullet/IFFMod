@@ -53,7 +53,7 @@ public class EventListener {
     // Event priority doesn't appear to change this
 //    @SubscribeEvent(priority = EventPriority.NORMAL)
 //    public void worldLoad(WorldEvent.Load event) {
-//        IffMod.LOGGER.info("a");
+//        IffMod.LOGGER.info(event.getWorld().hashCode());
 //    }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
